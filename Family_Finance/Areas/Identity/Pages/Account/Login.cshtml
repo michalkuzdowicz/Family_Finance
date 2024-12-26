@@ -1,0 +1,83 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-center align-items-center flex-column mb-4">
+                    <div class="rounded-circle rounded-circle-img bg-primary bg-opacity-10 p-3 d-inline-block mb-3">
+                        <i class="bi bi-person-circle fs-1 text-primary"></i>
+                    </div>
+                    <h2 class="text-light mb-0">Welcome Back</h2>
+                    <p class="text-light opacity-75">Sign in to your account</p>
+                </div>
+
+                <form id="account" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control bg-dark bg-opacity-50 text-light border-0" 
+                               autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <label asp-for="Input.Email" class="text-light opacity-75">Email</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password" class="form-control bg-dark bg-opacity-50 text-light border-0" 
+                               autocomplete="current-password" aria-required="true" placeholder="password" />
+                        <label asp-for="Input.Password" class="text-light opacity-75">Password</label>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" asp-for="Input.RememberMe">
+                        <label class="form-check-label text-light opacity-75" asp-for="Input.RememberMe">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mb-3 py-2">Sign In</button>
+
+                    <div class="d-flex justify-content-between text-light opacity-75">
+                        <a class="text-light text-decoration-none" asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">
+                            Create account
+                        </a>
+                        <a class="text-light text-decoration-none" asp-page="./ForgotPassword">
+                            Forgot password?
+                        </a>
+                    </div>
+                </form>
+
+                @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                {
+                    <div class="mt-4">
+                        <div class="text-center text-light opacity-75 mb-3">
+                            <span>Or continue with</span>
+                        </div>
+                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                            <div class="d-grid gap-2">
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit" class="btn btn-outline-light" 
+                                            name="provider" value="@provider.Name">
+                                        <i class="bi bi-@(provider.DisplayName.ToLower()) me-2"></i>
+                                        @provider.DisplayName
+                                    </button>
+                                }
+                            </div>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

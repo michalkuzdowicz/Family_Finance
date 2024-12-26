@@ -1,8 +1,116 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Family Finance";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid text-light py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-4 mb-4" style="font-weight: 600;">Family Finance Hub</h1>
+            <p class="lead mb-5 text-light opacity-75">Navigate your financial future with AI-powered insights</p>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-4">
+            <div class="glass-card h-100 p-4 hover-scale glow">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle rounded-circle-img bg-primary bg-opacity-10 p-3">
+                        <i class="bi bi-wallet2 fs-3 text-primary"></i>
+                    </div>
+                    <h5 class="card-title ms-3 mb-0">Smart Budget</h5>
+                </div>
+                <p class="card-text text-light opacity-75">AI-driven budget recommendations based on your spending patterns</p>
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 70%"></div>
+                </div>
+                <a href="#" class="btn btn-outline-light btn-sm rounded-pill px-4">View Analytics</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="glass-card h-100 p-4 hover-scale glow">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle rounded-circle-img bg-success bg-opacity-10 p-3">
+                        <i class="bi bi-graph-up-arrow fs-3 text-success"></i>
+                    </div>
+                    <h5 class="card-title ms-3 mb-0">Live Tracking</h5>
+                </div>
+                <p class="card-text text-light opacity-75">Real-time expense monitoring with instant categorization</p>
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+                </div>
+                <a href="#" class="btn btn-outline-light btn-sm rounded-pill px-4">Track Now</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="glass-card h-100 p-4 hover-scale glow">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle rounded-circle-img bg-info bg-opacity-10 p-3">
+                        <i class="bi bi-piggy-bank fs-3 text-info"></i>
+                    </div>
+                    <h5 class="card-title ms-3 mb-0">Smart Goals</h5>
+                </div>
+                <p class="card-text text-light opacity-75">Predictive goal setting with milestone tracking</p>
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 60%"></div>
+                </div>
+                <a href="#" class="btn btn-outline-light btn-sm rounded-pill px-4">Set Goals</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="row">
+                <div class="col-md-7 mb-4">
+                    <h2 class="h3 mb-4 text-light">Financial Pulse</h2>
+                    <div class="glass-card p-4">
+                        <div class="stat-card p-3 mb-3 glass-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-light opacity-75">Monthly Overview</span>
+                                <span class="h5 mb-0 text-success">$2,450.00</span>
+                            </div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card p-3 mb-3 glass-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-light opacity-75">Savings Target</span>
+                                <span class="h5 mb-0 text-primary">$5,000.00</span>
+                            </div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 45%"></div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card p-3 glass-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-light opacity-75">Investment Growth</span>
+                                <span class="h5 mb-0 text-info">+12.5%</span>
+                            </div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-5">
+                    <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center">
+                        <div class="rounded-circle rounded-circle-img bg-primary bg-opacity-10 p-4 mx-auto mb-4">
+                            <i class="bi bi-robot fs-1 text-primary"></i>
+                        </div>
+                        <h5 class="text-light mb-3">AI Financial Assistant</h5>
+                        <p class="text-light opacity-75 mb-4">Get personalized financial advice and insights</p>
+                        <button class="btn btn-primary rounded-pill px-4">Start Chat</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
