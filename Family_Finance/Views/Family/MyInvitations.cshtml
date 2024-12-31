@@ -1,0 +1,19 @@
+﻿@model IEnumerable<Family_Finance.Models.FamilyInvitation>
+
+<h2 class="text-light">Your Family Invitations</h2>
+
+@if (!Model.Any())
+{
+    <p class="text-light">You have no invitations at the moment.</p>
+}
+else
+{
+    @foreach (var invitation in Model)
+    {
+        <div class="text-light">
+            <p>You have an invitation from @invitation.Inviter.UserName</p>
+            <p>Family: @invitation.Inviter.FamilyGroup.Name</p> <!-- Wyświetlanie nazwy rodziny -->
+            <a href="@Url.Action("AcceptInvitation", "FamilyInvitation", new { id = invitation.Id })">Accept Invitation</a>
+        </div>
+    }
+}

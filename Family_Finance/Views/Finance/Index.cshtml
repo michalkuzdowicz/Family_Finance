@@ -1,0 +1,22 @@
+﻿<h2 class="text-light display-4 mb-4" style="font-weight: 600;">Transactions</h2>
+<table class="table">
+    <thead>
+        <tr class="text-light">
+            <th>Name</th>
+            <th>Value</th>
+            <th>Type</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in Model)
+        {
+            <tr class="text-light">
+                <td>@transaction.Name</td>
+                <td>@transaction.Amount</td>
+                <td>@transaction.Type</td>
+                <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+            </tr>
+        }
+    </tbody>
+</table>
