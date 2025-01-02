@@ -1,4 +1,4 @@
-﻿using Family_Finance.Models;
+using Family_Finance.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,5 +29,6 @@ namespace Family_Finance.Data
                     .OnDelete(DeleteBehavior.Restrict); // lub inne zachowanie w przypadku usunięcia
             });
         }
+        public DbSet<Family_Finance.Models.FinancialTarget> FinancialTarget { get; set; } = default!;
     }
 }

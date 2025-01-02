@@ -1,4 +1,5 @@
 ﻿<h2 class="text-light display-4 mb-4" style="font-weight: 600;">Transactions</h2>
+<a asp-action="CreateTransaction" class="btn btn-primary">Dodaj nowy wpis</a>
 <table class="table">
     <thead>
         <tr class="text-light">
@@ -6,6 +7,7 @@
             <th>Value</th>
             <th>Type</th>
             <th>Date</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -16,6 +18,12 @@
                 <td>@transaction.Amount</td>
                 <td>@transaction.Type</td>
                 <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                <td class="d-flex flex-row gap-2">
+                    <a asp-action="EditTransaction" asp-route-id="@transaction.ID" class="btn btn-success">Edit</a>
+                    <form asp-action="DeleteTransaction" asp-route-id="@transaction.ID" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
             </tr>
         }
     </tbody>

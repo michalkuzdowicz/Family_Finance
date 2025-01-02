@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 
 namespace Family_Finance.Models
 {
@@ -20,6 +21,9 @@ namespace Family_Finance.Models
 
         [Required]
         public string Type { get; set; }
+        
+        [MaxLength(255)]
+        public string? Description { get; set; }
 
         [Required]
         public string UserID { get; set; }
