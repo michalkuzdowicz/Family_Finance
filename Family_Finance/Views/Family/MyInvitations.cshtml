@@ -1,34 +1,19 @@
 ﻿@model IEnumerable<Family_Finance.Models.FamilyInvitation>
 
-<div class="container-fluid text-light py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 text-center">
-            <h1 class="display-4 mb-4" style="font-weight: 600;">Invitations to Family</h1>
-        </div>
-    </div>
+<h2 class="text-light">Your Family Invitations</h2>
 
-    @if (TempData["ErrorMessage"] != null)
+@if (!Model.Any())
+{
+    <p class="text-light">You have no invitations at the moment.</p>
+}
+else
+{
+    @foreach (var invitation in Model)
     {
-        <div class="alert alert-danger">
-            @TempData["ErrorMessage"]
+        <div class="text-light">
+            <p>You have an invitation from @invitation.Inviter.UserName</p>
+            <p>Family: @invitation.Inviter.FamilyGroup.Name</p> <!-- Wyświetlanie nazwy rodziny -->
+            <a href="@Url.Action("AcceptInvitation", "FamilyInvitation", new { id = invitation.Id })">Accept Invitation</a>
         </div>
     }
-
-    <div class="row g-4 justify-content-center">
-
-        @foreach (var invitation in Model)
-        {
-            <div class="col-md-4">
-                <div class="card glass-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Invitation to the family: @invitation.FamilyGroup.Name</h5>
-                        <p class="card-text">Would you like to join?</p>
-                        <a href="@Url.Action("AcceptInvitation", "Invitation", new { id = invitation.Id })" class="btn btn-success">Accept</a>
-                        <a href="@Url.Action("RejectInvitation", "Invitation", new { id = invitation.Id })" class="btn btn-danger">Reject</a>
-                    </div>
-                </div>
-            </div>
-        }
-
-    </div>
-</div>
+}

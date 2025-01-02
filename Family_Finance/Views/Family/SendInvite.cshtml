@@ -1,0 +1,14 @@
+﻿<form method="post" action="@Url.Action("SendInvitation", "Family")">
+    <div class="text-light form-group">
+        <label for="inviteeEmail">Email</label>
+        <input type="email" class="form-control" id="inviteeEmail" name="inviteeEmail" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Send invite</button>
+</form>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}

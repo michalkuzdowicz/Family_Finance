@@ -3,7 +3,6 @@ using Family_Finance.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Family_Finance.Controllers
 {
@@ -13,66 +12,26 @@ namespace Family_Finance.Controllers
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-
-        ////////////////\\\\\\\\\\\\\\\\\
-        ////////////////\\\\\\\\\\\\\\\\\
-        /////// Manage My Family \\\\\\\\
-        ////////////////\\\\\\\\\\\\\\\\\
-        ////////////////\\\\\\\\\\\\\\\\\
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (userId == null)
+            var user = await _userManager.GetUserAsync(User);
+            if (user.FamilyGroupID == null)
             {
-                return Unauthorized();
+                return RedirectToAction("CreateFamily", "Family");
             }
 
-            var familyGroup = _context.FamilyGroups
-                .Include(f => f.Members)
-                .FirstOrDefault(f => f.HeadOfFamilyID == userId);
+            var transactions = _context.Transactions
+                .Where(t => t.FamilyGroupID == user.FamilyGroupID)
+                .ToList();
 
-            if (familyGroup == null)
-            {
-                return NotFound();
-            }
-
-            // Upewnij się, że użytkownik jest głową rodziny
-            var isHeadOfFamily = familyGroup.HeadOfFamilyID == userId;
-
-            ViewData["IsHeadOfFamily"] = isHeadOfFamily;
-
-            return View(familyGroup);
+            return View(transactions);
         }
 
-
-        [HttpPost]
-        public async Task<IActionResult> RemoveMember(string userId)
+        public IActionResult CreateFamily()
         {
-            var member = await _userManager.FindByIdAsync(userId);
-
-            if (member == null)
-            {
-                TempData["ErrorMessage"] = "Member not found.";
-                return RedirectToAction("Index");
-            }
-
-            // Usunięcie użytkownika z rodziny
-            member.FamilyGroupID = null;
-            await _userManager.UpdateAsync(member);
-
-            return RedirectToAction("Index");
+            return View();
         }
 
-
-
-
-
-        ////////////////\\\\\\\\\\\\\\\\\
-        ////////////////\\\\\\\\\\\\\\\\\
-        ////// Creating new family \\\\\\
-        ////////////////\\\\\\\\\\\\\\\\\
-        ////////////////\\\\\\\\\\\\\\\\\
         [HttpPost]
         public async Task<IActionResult> CreateFamily(string familyName)
         {
@@ -80,7 +39,7 @@ namespace Family_Finance.Controllers
 
             if (user.FamilyGroupID != null)
             {
-                ModelState.AddModelError("", "You are already in the family.");
+                ModelState.AddModelError("", "Jesteś już w rodzinie.");
                 return View();
             }
 
@@ -97,18 +56,20 @@ namespace Family_Finance.Controllers
             user.FamilyGroupID = familyGroup.ID;
             await _userManager.UpdateAsync(user);
 
-            return RedirectToAction("Index", "Finance"); // Przekierowanie na stronę zarządzania rodziną
+            return RedirectToAction("Index", "Finance"); // Przekierowanie do Finansów
         }
 
 
 
+        ///
+        /// TO JEST CENTRUM ZAPROSZENIOWE
+        ///
+        public IActionResult SendInvite()
+        {
+            return View();
+        }
 
-
-        ////////////////\\\\\\\\\\\\\\\\\\
-        ////////////////\\\\\\\\\\\\\\\\\\
-        /// INVITING NEW FAMILY MEMBER \\\
-        ////////////////\\\\\\\\\\\\\\\\\\
-        ////////////////\\\\\\\\\\\\\\\\\\
+        // Wysyłanie zaproszenia
         public async Task<IActionResult> SendInvitation(string inviteeEmail)
         {
             var inviter = await _userManager.GetUserAsync(User);
@@ -117,14 +78,14 @@ namespace Family_Finance.Controllers
             if (invitee == null)
             {
                 TempData["ErrorMessage"] = "No user found with this email.";
-                return RedirectToAction("Index", "Finance");
+                return RedirectToAction("Index", "Home");
             }
 
             // Sprawdzanie, czy zapraszany użytkownik nie należy już do rodziny
             if (invitee.FamilyGroupID != null)
             {
                 TempData["ErrorMessage"] = "This user is already part of a family.";
-                return RedirectToAction("Index", "Finance");
+                return RedirectToAction("Index", "Home");
             }
 
             var invitation = new FamilyInvitation
@@ -138,55 +99,35 @@ namespace Family_Finance.Controllers
             _context.FamilyInvitations.Add(invitation);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Finance"); // Przekierowanie na stronę zarządzania rodziną
+            return RedirectToAction("Index", "Home");
         }
 
-
-        //
         // Wyświetlanie zaproszeń użytkownika
-        //
         public async Task<IActionResult> MyInvitations()
         {
             var user = await _userManager.GetUserAsync(User);
 
+            // Załaduj zaproszenia i dołącz dane o zapraszającym
             var invitations = await _context.FamilyInvitations
-                .Include(i => i.Inviter)
-                .ThenInclude(u => u.FamilyGroup)
+                .Include(i => i.Inviter) // Dołącz zapraszającego
+                .ThenInclude(u => u.FamilyGroup) // Dołącz rodzinę zapraszającego
                 .Where(i => i.InviteeEmail == user.Email && !i.IsAccepted)
                 .ToListAsync();
 
             return View(invitations);
         }
 
-
-        //
         // Akceptowanie zaproszenia
-        //
         public async Task<IActionResult> AcceptInvitation(int id)
         {
-            var invitation = await _context.FamilyInvitations
-                .Include(i => i.Inviter)
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var invitation = await _context.FamilyInvitations.FindAsync(id);
 
             if (invitation == null || invitation.IsAccepted)
             {
                 return NotFound();
             }
 
-            if (invitation.Inviter == null || invitation.Inviter.FamilyGroupID == null)
-            {
-                TempData["ErrorMessage"] = "Invalid invitation: Inviter or family group not found.";
-                return RedirectToAction("MyInvitations");
-            }
-
             var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-            {
-                TempData["ErrorMessage"] = "User not found.";
-                return RedirectToAction("MyInvitations");
-            }
-
             user.FamilyGroupID = invitation.Inviter.FamilyGroupID;
             invitation.IsAccepted = true;
 
@@ -194,35 +135,8 @@ namespace Family_Finance.Controllers
             _context.Update(invitation);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Finance"); // Przekierowanie na stronę zarządzania rodziną
+            return RedirectToAction("Index", "Family");
         }
-
-        //
-        // Odrzucenie zaproszenia
-        //
-        public async Task<IActionResult> RejectInvitation(int id)
-        {
-            var invitation = await _context.FamilyInvitations
-                .Include(i => i.Inviter)
-                .FirstOrDefaultAsync(i => i.Id == id);
-
-            if (invitation == null || invitation.IsAccepted)
-            {
-                return NotFound();
-            }
-
-            // Opcjonalnie: Jeżeli chcesz usunąć zaproszenie z bazy po jego odrzuceniu
-            _context.FamilyInvitations.Remove(invitation);
-
-            // Jeżeli chcesz zachować zaproszenie, ale oznaczyć je jako odrzucone
-            // invitation.IsRejected = true;
-            // _context.Update(invitation);
-
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("MyInvitations"); // Przekierowanie z powrotem do strony zaproszeń
-        }
-
 
     }
 }

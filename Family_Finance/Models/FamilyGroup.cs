@@ -9,11 +9,4 @@
         public ICollection<ApplicationUser> Members { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
     }
-
-    public class FamilyManageViewModel
-    {
-        public string FamilyGroupName { get; set; }
-        public List<ApplicationUser> Members { get; set; }
-        public bool IsHeadOfFamily { get; set; }
-    }
 }

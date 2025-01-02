@@ -121,13 +121,6 @@ namespace Family_Finance.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FamilyGroupID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FamilyGroupId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("InvitationDate")
                         .HasColumnType("datetime2");
 
@@ -142,12 +135,7 @@ namespace Family_Finance.Data.Migrations
                     b.Property<bool>("IsAccepted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsRejected")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("FamilyGroupID");
 
                     b.HasIndex("InviterId");
 
@@ -334,19 +322,11 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Family_Finance.Models.FamilyInvitation", b =>
                 {
-                    b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
-                        .WithMany()
-                        .HasForeignKey("FamilyGroupID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Family_Finance.Models.ApplicationUser", "Inviter")
                         .WithMany()
                         .HasForeignKey("InviterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("FamilyGroup");
 
                     b.Navigation("Inviter");
                 });
