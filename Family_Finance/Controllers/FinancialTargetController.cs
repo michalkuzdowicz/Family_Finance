@@ -7,34 +7,37 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Family_Finance.Data;
 using Family_Finance.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Family_Finance.Controllers
 {
-    public class FinancialTargetController : Controller
+    public class FinancialTargetController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public FinancialTargetController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
+        private readonly ApplicationDbContext _context = context;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        
         // GET: FinancialTarget
         public async Task<IActionResult> Index()
         {
-            return View(await _context.FinancialTarget.ToListAsync());
+            var user = await _userManager.GetUserAsync(User);
+            
+            return View(await _context.FinancialTarget
+                .Where(ft => ft.FamilyGroupID == user.FamilyGroupID)
+                .ToListAsync());
         }
 
         // GET: FinancialTarget/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var user = await _userManager.GetUserAsync(User);
+            
             if (id == null)
             {
                 return NotFound();
             }
 
             var financialTarget = await _context.FinancialTarget
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.FamilyGroupID == user.FamilyGroupID);
             if (financialTarget == null)
             {
                 return NotFound();
@@ -54,14 +57,27 @@ namespace Family_Finance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,TargetAmount,CurrentAmount,CreatedDate")] FinancialTarget financialTarget)
+        public async Task<IActionResult> Create(string name, string description, decimal targetAmount, decimal currentAmount)
         {
-            if (ModelState.IsValid)
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user.FamilyGroupID == null)
             {
-                _context.Add(financialTarget);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("CreateFamily", "Family");
             }
+            
+            var financialTarget = new FinancialTarget
+            {
+                Name = name,
+                Description = description,
+                TargetAmount = targetAmount,
+                CurrentAmount = currentAmount,
+                FamilyGroupID = user.FamilyGroupID
+            };
+
+            _context.FinancialTarget.Add(financialTarget);
+            await _context.SaveChangesAsync();
+            
             return View(financialTarget);
         }
 
@@ -86,33 +102,36 @@ namespace Family_Finance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,TargetAmount,CurrentAmount,CreatedDate")] FinancialTarget financialTarget)
+        public async Task<IActionResult> Edit(int id, string name, string description, decimal targetAmount, decimal currentAmount)
         {
+            var user = await _userManager.GetUserAsync(User);
+            
+            var financialTarget = await _context.FinancialTarget
+                .FirstOrDefaultAsync(ft => ft.Id == id && ft.FamilyGroupID == user.FamilyGroupID);
+
+            
             if (id != financialTarget.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+           if (user.FamilyGroupID == null)
             {
-                try
-                {
-                    _context.Update(financialTarget);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FinancialTargetExists(financialTarget.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("CreateFamily", "Family");
             }
+            
+            var data = new FinancialTarget
+            {
+                Name = name,
+                Description = description,
+                TargetAmount = targetAmount,
+                CurrentAmount = currentAmount,
+                FamilyGroupID = user.FamilyGroupID
+            };
+
+            _context.FinancialTarget.Add(data);
+            await _context.SaveChangesAsync();
+
             return View(financialTarget);
         }
 

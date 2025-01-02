@@ -5,26 +5,17 @@ namespace Family_Finance.Models;
 
 public class TargetTransaction
 {
-    [Key]
-    public int Id { get; set; }
+    [Key] public int Id { get; set; }
 
-    [Required]
-    public decimal Amount { get; set; }
+    [Required] public decimal Amount { get; set; }
 
-    [Required]
-    public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
+    [Required] public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
 
-    [Required]
-    public string UserId { get; set; }
-    
-    [ForeignKey("UserId")]
-    public virtual ApplicationUser User { get; set; }
+    [Required] public string UserId { get; set; }
 
-    [Required]
-    public int FinancialTargetId { get; set; }
-    
-    [ForeignKey("FinancialTargetId")]
-    public virtual FinancialTarget FinancialTarget { get; set; }
+    public ApplicationUser User { get; set; }
+
+    [Required] public FinancialTarget FinancialTarget { get; set; }
 
     public string? Note { get; set; }
 }

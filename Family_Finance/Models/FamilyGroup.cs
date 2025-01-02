@@ -8,5 +8,6 @@
 
         public ICollection<ApplicationUser> Members { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
+        public ICollection<FinancialTarget> FinancialTargets { get; set; }
     }
 }

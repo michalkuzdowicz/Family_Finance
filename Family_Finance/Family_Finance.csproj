@@ -31,6 +31,19 @@
     <_ContentIncludedByDefault Remove="Views\Transaction\Details.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Transaction\Edit.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Transaction\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Create.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Delete.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Details.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Edit.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Index.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Create.cshtml" />
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Delete.cshtml" />
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Details.cshtml" />
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Edit.cshtml" />
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Index.cshtml" />
   </ItemGroup>
 
 </Project>

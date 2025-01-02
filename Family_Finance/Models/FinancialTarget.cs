@@ -20,8 +20,13 @@ public class FinancialTarget
     [Required]
     public decimal CurrentAmount { get; set; }
     
-    public virtual ICollection<TargetTransaction> TargetTransactions { get; set; } = new List<TargetTransaction>();
-    
     [Required]
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+    
+    public int? FamilyGroupID { get; set; }
+    public FamilyGroup FamilyGroup { get; set; }
+    
+   public ICollection<TargetTransaction> TargetTransactions { get; set; }
+    
+   
 }
