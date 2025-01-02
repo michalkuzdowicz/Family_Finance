@@ -11,6 +11,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
       <PrivateAssets>all</PrivateAssets>
@@ -21,6 +23,27 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Transaction\Create.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Transaction\Delete.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Transaction\Details.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Transaction\Edit.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Transaction\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Create.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Delete.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Details.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Edit.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\FinancialTarget\Index.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Create.cshtml" />
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Delete.cshtml" />
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Details.cshtml" />
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Edit.cshtml" />
+    <UpToDateCheckInput Remove="Views\FinancialTarget\Index.cshtml" />
   </ItemGroup>
 
 </Project>

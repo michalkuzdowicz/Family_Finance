@@ -7,10 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+// builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//     options.UseSqlServer(connectionString));
 
-// Rejestracja to¿samoœci (Identity) z niestandardowym ApplicationUser
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseInMemoryDatabase(databaseName: "YourDatabaseName"));
+
+// Rejestracja toï¿½samoï¿½ci (Identity) z niestandardowym ApplicationUser
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders()
@@ -40,7 +43,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapRazorPages();  // U¿yj Razor Pages
+app.MapRazorPages();  // Uï¿½yj Razor Pages
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
