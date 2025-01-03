@@ -17,7 +17,7 @@ namespace Family_Finance.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -121,12 +121,8 @@ namespace Family_Finance.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FamilyGroupID")
+                    b.Property<int?>("FamilyGroupID")
                         .HasColumnType("int");
-
-                    b.Property<string>("FamilyGroupId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("InvitationDate")
                         .HasColumnType("datetime2");
@@ -154,6 +150,74 @@ namespace Family_Finance.Data.Migrations
                     b.ToTable("FamilyInvitations");
                 });
 
+            modelBuilder.Entity("Family_Finance.Models.FinancialTarget", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("CurrentAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int?>("FamilyGroupID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TargetAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FamilyGroupID");
+
+                    b.ToTable("FinancialTarget");
+                });
+
+            modelBuilder.Entity("Family_Finance.Models.TargetTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("FinancialTargetId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FinancialTargetId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TargetTransaction");
+                });
+
             modelBuilder.Entity("Family_Finance.Models.Transaction", b =>
                 {
                     b.Property<int>("ID")
@@ -167,6 +231,10 @@ namespace Family_Finance.Data.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("FamilyGroupID")
                         .HasColumnType("int");
@@ -336,9 +404,7 @@ namespace Family_Finance.Data.Migrations
                 {
                     b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
                         .WithMany()
-                        .HasForeignKey("FamilyGroupID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FamilyGroupID");
 
                     b.HasOne("Family_Finance.Models.ApplicationUser", "Inviter")
                         .WithMany()
@@ -349,6 +415,34 @@ namespace Family_Finance.Data.Migrations
                     b.Navigation("FamilyGroup");
 
                     b.Navigation("Inviter");
+                });
+
+            modelBuilder.Entity("Family_Finance.Models.FinancialTarget", b =>
+                {
+                    b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
+                        .WithMany("FinancialTargets")
+                        .HasForeignKey("FamilyGroupID");
+
+                    b.Navigation("FamilyGroup");
+                });
+
+            modelBuilder.Entity("Family_Finance.Models.TargetTransaction", b =>
+                {
+                    b.HasOne("Family_Finance.Models.FinancialTarget", "FinancialTarget")
+                        .WithMany("TargetTransactions")
+                        .HasForeignKey("FinancialTargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Family_Finance.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FinancialTarget");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Family_Finance.Models.Transaction", b =>
@@ -415,9 +509,16 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Family_Finance.Models.FamilyGroup", b =>
                 {
+                    b.Navigation("FinancialTargets");
+
                     b.Navigation("Members");
 
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("Family_Finance.Models.FinancialTarget", b =>
+                {
+                    b.Navigation("TargetTransactions");
                 });
 #pragma warning restore 612, 618
         }
