@@ -14,6 +14,8 @@ namespace Family_Finance.Data
         public DbSet<FamilyInvitation> FamilyInvitations { get; set; }
         public DbSet<FamilyGroup> FamilyGroups { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<FinancialTarget> FinancialTarget { get; set; }
+        public DbSet<TargetTransaction> TargetTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +31,6 @@ namespace Family_Finance.Data
                     .OnDelete(DeleteBehavior.Restrict); // lub inne zachowanie w przypadku usunięcia
             });
         }
-        public DbSet<Family_Finance.Models.FinancialTarget> FinancialTarget { get; set; } = default!;
+        
     }
 }

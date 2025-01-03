@@ -59,26 +59,33 @@ namespace Family_Finance.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string name, string description, decimal targetAmount, decimal currentAmount)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user.FamilyGroupID == null)
+            try
             {
-                return RedirectToAction("CreateFamily", "Family");
+                var user = await _userManager.GetUserAsync(User);
+
+                if (user.FamilyGroupID == null)
+                {
+                    return RedirectToAction("CreateFamily", "Family");
+                }
+                
+                var financialTarget = new FinancialTarget
+                {
+                    Name = name,
+                    Description = description,
+                    TargetAmount = targetAmount,
+                    FamilyGroupID = user.FamilyGroupID
+                };
+
+                _context.FinancialTarget.Add(financialTarget);
+                await _context.SaveChangesAsync();
+                
+                return RedirectToAction(nameof(Index));
             }
-            
-            var financialTarget = new FinancialTarget
+            catch (Exception e)
             {
-                Name = name,
-                Description = description,
-                TargetAmount = targetAmount,
-                CurrentAmount = currentAmount,
-                FamilyGroupID = user.FamilyGroupID
-            };
-
-            _context.FinancialTarget.Add(financialTarget);
-            await _context.SaveChangesAsync();
-            
-            return View(financialTarget);
+                ModelState.AddModelError("", "An error occurred while creating the financial target. Please try again.");
+                return View();
+            }
         }
 
         // GET: FinancialTarget/Edit/5
@@ -104,35 +111,41 @@ namespace Family_Finance.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, string name, string description, decimal targetAmount, decimal currentAmount)
         {
-            var user = await _userManager.GetUserAsync(User);
-            
-            var financialTarget = await _context.FinancialTarget
-                .FirstOrDefaultAsync(ft => ft.Id == id && ft.FamilyGroupID == user.FamilyGroupID);
-
-            
-            if (id != financialTarget.Id)
+            try
             {
-                return NotFound();
+                var user = await _userManager.GetUserAsync(User);
+                
+                var financialTarget = await _context.FinancialTarget
+                    .FirstOrDefaultAsync(ft => ft.Id == id && ft.FamilyGroupID == user.FamilyGroupID);
+
+                if (financialTarget == null || user.FamilyGroupID == null)
+                {
+                    return NotFound();
+                }
+
+                financialTarget.Name = name;
+                financialTarget.Description = description;
+                financialTarget.TargetAmount = targetAmount;
+
+                _context.Update(financialTarget);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
             }
-
-           if (user.FamilyGroupID == null)
+            catch (DbUpdateConcurrencyException)
             {
-                return RedirectToAction("CreateFamily", "Family");
+                if (!FinancialTargetExists(id))
+                {
+                    return NotFound();
+                }
+                throw;
             }
-            
-            var data = new FinancialTarget
+            catch (Exception ex)
             {
-                Name = name,
-                Description = description,
-                TargetAmount = targetAmount,
-                CurrentAmount = currentAmount,
-                FamilyGroupID = user.FamilyGroupID
-            };
-
-            _context.FinancialTarget.Add(data);
-            await _context.SaveChangesAsync();
-
-            return View(financialTarget);
+                // Log the error here if you have logging configured
+                ModelState.AddModelError("", "An error occurred while updating the financial target. Please try again.");
+                return View();
+            }
         }
 
         // GET: FinancialTarget/Delete/5
