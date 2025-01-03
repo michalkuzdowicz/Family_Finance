@@ -30,9 +30,9 @@
                             <span class="text-light">@member.UserName (@member.Email)</span>
                             @if (Model.HeadOfFamilyID == userId && member.Id != userId)
                             {
-                                <form asp-controller="Family" asp-action="RemoveMember" method="post">
-                                    <input type="hidden" name="userId" value="@member.Id" />
-                                    <button type="submit" class="btn btn-danger">Remove</button>
+                                <form asp-action="RemoveMember" asp-controller="Family" method="post" class="mb-0">
+                                    <input type="hidden" name="memberId" value="@member.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                                 </form>
                             }
                         </div>
@@ -48,7 +48,7 @@
         <div class="col-lg-4">
             <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center">
                 <h5 class="text-light mb-3">Invite New Member</h5>
-                <form asp-action="SendInvitation" asp-controller="Family" method="post">
+                <form asp-action="SendInvite" asp-controller="Family" method="post">
                     <div class="mb-3">
                         <input type="email" name="inviteeEmail" class="form-control bg-dark text-light" placeholder="Enter email" required />
                     </div>
@@ -60,6 +60,5 @@
                 }
             </div>
         </div>
-
     </div>
 </div>

@@ -19,7 +19,7 @@ namespace Family_Finance.Controllers
         /////// Manage My Family \\\\\\\\
         ////////////////\\\\\\\\\\\\\\\\\
         ////////////////\\\\\\\\\\\\\\\\\
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -28,20 +28,16 @@ namespace Family_Finance.Controllers
                 return Unauthorized();
             }
 
-            // Debugowanie wartości userId
-            Console.WriteLine($"UserId: {userId}");
-
             var familyGroup = _context.FamilyGroups
                 .Include(f => f.Members)
                 .FirstOrDefault(f => f.HeadOfFamilyID == userId);
 
-            // Debugowanie wartości familyGroup
             if (familyGroup == null)
             {
-                Console.WriteLine("FamilyGroup not found");
                 return NotFound();
             }
 
+            // Upewnij się, że użytkownik jest głową rodziny
             var isHeadOfFamily = familyGroup.HeadOfFamilyID == userId;
 
             ViewData["IsHeadOfFamily"] = isHeadOfFamily;
@@ -50,36 +46,22 @@ namespace Family_Finance.Controllers
         }
 
 
-
         [HttpPost]
         public async Task<IActionResult> RemoveMember(string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                TempData["ErrorMessage"] = "Invalid user ID.";
-                return RedirectToAction("Index", "Family");
-            }
-
             var member = await _userManager.FindByIdAsync(userId);
 
             if (member == null)
             {
-                TempData["ErrorMessage"] = $"Member not found. ID: {userId}";
-                return RedirectToAction("Index", "Family");
+                TempData["ErrorMessage"] = "Member not found.";
+                return RedirectToAction("Index");
             }
 
             // Usunięcie użytkownika z rodziny
             member.FamilyGroupID = null;
-            var result = await _userManager.UpdateAsync(member);
+            await _userManager.UpdateAsync(member);
 
-            if (!result.Succeeded)
-            {
-                TempData["ErrorMessage"] = "Failed to remove member.";
-                return RedirectToAction("Index", "Family");
-            }
-
-            TempData["SuccessMessage"] = "Member removed successfully.";
-            return RedirectToAction("Index", "Family");
+            return RedirectToAction("Index");
         }
 
 
@@ -91,12 +73,6 @@ namespace Family_Finance.Controllers
         ////// Creating new family \\\\\\
         ////////////////\\\\\\\\\\\\\\\\\
         ////////////////\\\\\\\\\\\\\\\\\
-        public IActionResult CreateIndex()
-        {
-            return View();
-        }
-
-
         [HttpPost]
         public async Task<IActionResult> CreateFamily(string familyName)
         {
@@ -121,7 +97,7 @@ namespace Family_Finance.Controllers
             user.FamilyGroupID = familyGroup.ID;
             await _userManager.UpdateAsync(user);
 
-            return RedirectToAction("Index", "Family"); // Przekierowanie na stronę zarządzania rodziną
+            return RedirectToAction("Index", "Finance"); // Przekierowanie na stronę zarządzania rodziną
         }
 
 
@@ -141,14 +117,14 @@ namespace Family_Finance.Controllers
             if (invitee == null)
             {
                 TempData["ErrorMessage"] = "No user found with this email.";
-                return RedirectToAction("Index", "Family");
+                return RedirectToAction("Index", "Finance");
             }
 
             // Sprawdzanie, czy zapraszany użytkownik nie należy już do rodziny
             if (invitee.FamilyGroupID != null)
             {
-                TempData["ErrorMessage"] = "This user is already part of another family.";
-                return RedirectToAction("Index", "Family");
+                TempData["ErrorMessage"] = "This user is already part of a family.";
+                return RedirectToAction("Index", "Finance");
             }
 
             var invitation = new FamilyInvitation
@@ -162,7 +138,7 @@ namespace Family_Finance.Controllers
             _context.FamilyInvitations.Add(invitation);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Family"); // Przekierowanie na stronę zarządzania rodziną
+            return RedirectToAction("Index", "Finance"); // Przekierowanie na stronę zarządzania rodziną
         }
 
 
@@ -172,12 +148,6 @@ namespace Family_Finance.Controllers
         public async Task<IActionResult> MyInvitations()
         {
             var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-            {
-                TempData["ErrorMessage"] = "User not found.";
-                return RedirectToAction("Index", "Home");
-            }
 
             var invitations = await _context.FamilyInvitations
                 .Include(i => i.Inviter)
@@ -224,7 +194,7 @@ namespace Family_Finance.Controllers
             _context.Update(invitation);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Finance"); // Przekierowanie na stronę transakcji
+            return RedirectToAction("Index", "Finance"); // Przekierowanie na stronę zarządzania rodziną
         }
 
         //
