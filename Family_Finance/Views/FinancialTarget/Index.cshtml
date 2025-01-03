@@ -1,15 +1,13 @@
 @model IEnumerable<Family_Finance.Models.FinancialTarget>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Cel finansowy";
 }
 
-<h1>Index</h1>
+<h1 class="text-light">Cel finansowy</h1>
+<a class="btn btn-primary" asp-action="Create">Dodaj nowy cel</a>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<table class="table text-light">
     <thead>
         <tr>
             <th>

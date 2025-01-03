@@ -3,6 +3,7 @@ using Family_Finance.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Family_Finance.Controllers
 {
@@ -26,18 +27,31 @@ namespace Family_Finance.Controllers
             return View(transactions);
         }
         
-        public IActionResult CreateTransaction()
+        public async Task<IActionResult> CreateTransaction()
         {
+            var user = await _userManager.GetUserAsync(User);
+
+            var financialTargets = await _context.FinancialTarget
+                .Where(ft => ft.FamilyGroupID == user.FamilyGroupID)
+                .Select(ft => new SelectListItem
+                {
+                    Value = ft.Id.ToString(),
+                    Text = ft.Name
+                })
+                .ToListAsync();
+
             var transaction = new Transaction
             {
                 Date = DateTime.UtcNow
             };
+
+            ViewBag.FinancialTargets = financialTargets;
             
             return View(transaction);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddTransaction(string name, decimal amount, string type, string description)
+        public async Task<IActionResult> AddTransaction(string name, decimal amount, string type, string description, int financialTargetId)
         {
             if (amount <= 0)
             {
@@ -53,6 +67,7 @@ namespace Family_Finance.Controllers
             }
 
             var user = await _userManager.GetUserAsync(User);
+            
             if (user.FamilyGroupID == null)
             {
                 return RedirectToAction("CreateFamily", "Family");
@@ -65,12 +80,39 @@ namespace Family_Finance.Controllers
                 Type = type,
                 Description = description,
                 Date = DateTime.UtcNow,
-                FamilyGroupID = user.FamilyGroupID.Value,
-                UserID = user.Id
+                FamilyGroupID = (int) user.FamilyGroupID,
+                UserID = user.Id,
+                FinancialTargetID = financialTargetId
             };
 
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
+
+            var financialTarget = await _context.FinancialTarget
+                   .FindAsync(transaction.FinancialTargetID.Value);
+
+            if (transaction.FinancialTargetID.HasValue && transaction.FinancialTargetID == financialTarget.Id)
+            {
+                var targetTransaction = new TargetTransaction
+                {
+                    Amount = transaction.Amount,
+                    TransactionDate = transaction.Date,
+                    Note = transaction.Description,
+                    UserId = user.Id,
+                    FinancialTargetId = (int)transaction.FinancialTargetID,
+                    TransactionId = transaction.ID,
+                    Type = transaction.Type,
+                };
+
+                // Zaktualizowanie aktualnego stanu
+                financialTarget.UpdateAmount(targetTransaction.Amount, targetTransaction.Type);
+
+
+                _context.TargetTransactions.Add(targetTransaction);
+                await _context.SaveChangesAsync();
+            }
+
+            
 
             return RedirectToAction("Index");
         }

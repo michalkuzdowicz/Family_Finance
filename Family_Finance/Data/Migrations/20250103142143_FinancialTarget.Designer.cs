@@ -4,6 +4,7 @@ using Family_Finance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Family_Finance.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250103142143_FinancialTarget")]
+    partial class FinancialTarget
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,13 +124,6 @@ namespace Family_Finance.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FamilyGroupID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FamilyGroupId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("InvitationDate")
                         .HasColumnType("datetime2");
 
@@ -142,12 +138,7 @@ namespace Family_Finance.Data.Migrations
                     b.Property<bool>("IsAccepted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsRejected")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("FamilyGroupID");
 
                     b.HasIndex("InviterId");
 
@@ -209,13 +200,6 @@ namespace Family_Finance.Data.Migrations
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -224,11 +208,9 @@ namespace Family_Finance.Data.Migrations
 
                     b.HasIndex("FinancialTargetId");
 
-                    b.HasIndex("TransactionId");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("TargetTransactions");
+                    b.ToTable("TargetTransaction");
                 });
 
             modelBuilder.Entity("Family_Finance.Models.Transaction", b =>
@@ -252,9 +234,6 @@ namespace Family_Finance.Data.Migrations
                     b.Property<int>("FamilyGroupID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("FinancialTargetID")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -270,8 +249,6 @@ namespace Family_Finance.Data.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("FamilyGroupID");
-
-                    b.HasIndex("FinancialTargetID");
 
                     b.ToTable("Transactions");
                 });
@@ -420,19 +397,11 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Family_Finance.Models.FamilyInvitation", b =>
                 {
-                    b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
-                        .WithMany()
-                        .HasForeignKey("FamilyGroupID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Family_Finance.Models.ApplicationUser", "Inviter")
                         .WithMany()
                         .HasForeignKey("InviterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("FamilyGroup");
 
                     b.Navigation("Inviter");
                 });
@@ -454,12 +423,6 @@ namespace Family_Finance.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Family_Finance.Models.Transaction", "Transaction")
-                        .WithMany()
-                        .HasForeignKey("TransactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Family_Finance.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -467,8 +430,6 @@ namespace Family_Finance.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("FinancialTarget");
-
-                    b.Navigation("Transaction");
 
                     b.Navigation("User");
                 });
@@ -481,13 +442,7 @@ namespace Family_Finance.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Family_Finance.Models.FinancialTarget", "FinancialTarget")
-                        .WithMany()
-                        .HasForeignKey("FinancialTargetID");
-
                     b.Navigation("FamilyGroup");
-
-                    b.Navigation("FinancialTarget");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
