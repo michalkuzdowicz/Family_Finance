@@ -4,6 +4,7 @@ using Family_Finance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Family_Finance.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250101180415_FixFamilyGroupColumn")]
+    partial class FixFamilyGroupColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -154,83 +157,6 @@ namespace Family_Finance.Data.Migrations
                     b.ToTable("FamilyInvitations");
                 });
 
-            modelBuilder.Entity("Family_Finance.Models.FinancialTarget", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("CurrentAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<int?>("FamilyGroupID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TargetAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FamilyGroupID");
-
-                    b.ToTable("FinancialTarget");
-                });
-
-            modelBuilder.Entity("Family_Finance.Models.TargetTransaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("FinancialTargetId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FinancialTargetId");
-
-                    b.HasIndex("TransactionId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("TargetTransactions");
-                });
-
             modelBuilder.Entity("Family_Finance.Models.Transaction", b =>
                 {
                     b.Property<int>("ID")
@@ -245,14 +171,7 @@ namespace Family_Finance.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<int>("FamilyGroupID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FinancialTargetID")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -265,15 +184,11 @@ namespace Family_Finance.Data.Migrations
 
                     b.Property<string>("UserID")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
                     b.HasIndex("FamilyGroupID");
-
-                    b.HasIndex("FinancialTargetID");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Transactions");
                 });
@@ -439,42 +354,6 @@ namespace Family_Finance.Data.Migrations
                     b.Navigation("Inviter");
                 });
 
-            modelBuilder.Entity("Family_Finance.Models.FinancialTarget", b =>
-                {
-                    b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
-                        .WithMany("FinancialTargets")
-                        .HasForeignKey("FamilyGroupID");
-
-                    b.Navigation("FamilyGroup");
-                });
-
-            modelBuilder.Entity("Family_Finance.Models.TargetTransaction", b =>
-                {
-                    b.HasOne("Family_Finance.Models.FinancialTarget", "FinancialTarget")
-                        .WithMany("TargetTransactions")
-                        .HasForeignKey("FinancialTargetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Family_Finance.Models.Transaction", "Transaction")
-                        .WithMany()
-                        .HasForeignKey("TransactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Family_Finance.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FinancialTarget");
-
-                    b.Navigation("Transaction");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Family_Finance.Models.Transaction", b =>
                 {
                     b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
@@ -483,21 +362,7 @@ namespace Family_Finance.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Family_Finance.Models.FinancialTarget", "FinancialTarget")
-                        .WithMany()
-                        .HasForeignKey("FinancialTargetID");
-
-                    b.HasOne("Family_Finance.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("FamilyGroup");
-
-                    b.Navigation("FinancialTarget");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -553,16 +418,9 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Family_Finance.Models.FamilyGroup", b =>
                 {
-                    b.Navigation("FinancialTargets");
-
                     b.Navigation("Members");
 
                     b.Navigation("Transactions");
-                });
-
-            modelBuilder.Entity("Family_Finance.Models.FinancialTarget", b =>
-                {
-                    b.Navigation("TargetTransactions");
                 });
 #pragma warning restore 612, 618
         }
