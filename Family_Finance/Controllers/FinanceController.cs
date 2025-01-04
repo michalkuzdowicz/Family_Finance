@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Family_Finance.Data.Migrations;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Family_Finance.Controllers
 {
@@ -12,7 +14,7 @@ namespace Family_Finance.Controllers
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? startDate = null, DateTime? endDate = null)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user.FamilyGroupID == null)
@@ -20,9 +22,24 @@ namespace Family_Finance.Controllers
                 return RedirectToAction("CreateFamily", "Family");
             }
 
-            var transactions = _context.Transactions
-                .Where(t => t.FamilyGroupID == user.FamilyGroupID)
-                .ToList();
+            var query = _context.Transactions
+                .Where(t => t.FamilyGroupID == user.FamilyGroupID);
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(t => t.Date >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                endDate = endDate.Value.AddDays(1).AddSeconds(-1);
+                query = query.Where(t => t.Date <= endDate.Value);
+            }
+
+            var transactions = query.ToList();
+            
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
 
             return View(transactions);
         }
@@ -82,17 +99,18 @@ namespace Family_Finance.Controllers
                 Date = DateTime.UtcNow,
                 FamilyGroupID = (int) user.FamilyGroupID,
                 UserID = user.Id,
-                FinancialTargetID = financialTargetId
+                FinancialTargetID = financialTargetId == 0 ? null : financialTargetId
             };
 
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
 
-            var financialTarget = await _context.FinancialTarget
-                   .FindAsync(transaction.FinancialTargetID.Value);
 
-            if (transaction.FinancialTargetID.HasValue && transaction.FinancialTargetID == financialTarget.Id)
+            if (transaction.FinancialTargetID.HasValue)
             {
+                var financialTarget = await _context.FinancialTarget
+                       .FindAsync(transaction.FinancialTargetID.Value);
+
                 var targetTransaction = new TargetTransaction
                 {
                     Amount = transaction.Amount,
@@ -104,8 +122,8 @@ namespace Family_Finance.Controllers
                     Type = transaction.Type,
                 };
 
-                // Zaktualizowanie aktualnego stanu
-                financialTarget.UpdateAmount(targetTransaction.Amount, targetTransaction.Type);
+                //// Zaktualizowanie aktualnego stanu
+                //financialTarget.UpdateAmount(targetTransaction.Amount, targetTransaction.Type);
 
 
                 _context.TargetTransactions.Add(targetTransaction);
@@ -132,7 +150,7 @@ namespace Family_Finance.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateTransaction(int id, string name, decimal amount, string type, string description)
+        public async Task<IActionResult> UpdateTransaction(int id, string name, decimal amount, string type, string description, int financialTargetId)
         {
             var user = await _userManager.GetUserAsync(User);
             var transaction = await _context.Transactions
@@ -143,9 +161,9 @@ namespace Family_Finance.Controllers
                 return NotFound();
             }
 
-            if (amount == 0)
+            if (amount <= 0)
             {
-                ModelState.AddModelError("Amount", "Amount cannot be zero");
+                ModelState.AddModelError("Amount", "Amount must be greater than zero");
                 return View("EditTransaction", transaction);
             }
 
@@ -154,6 +172,31 @@ namespace Family_Finance.Controllers
             transaction.Type = type;
             transaction.Date = DateTime.UtcNow;
             transaction.Description = description;
+            transaction.FinancialTargetID = financialTargetId == 0 ? null : financialTargetId;
+
+            var targetTransaction = await _context.TargetTransactions
+                .FirstOrDefaultAsync(t => t.TransactionId == id);
+
+            if (targetTransaction != null)
+            {
+                targetTransaction.Amount = amount;
+                targetTransaction.Type = type;
+                targetTransaction.Note = description;
+            }
+            else if (financialTargetId != 0)
+            {
+                var newTargetTransaction = new TargetTransaction
+                {
+                    Amount = amount,
+                    TransactionDate = transaction.Date,
+                    Note = description,
+                    UserId = user.Id,
+                    FinancialTargetId = financialTargetId,
+                    TransactionId = id,
+                    Type = type
+                };
+                _context.TargetTransactions.Add(newTargetTransaction);
+            }
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -170,10 +213,17 @@ namespace Family_Finance.Controllers
             {
                 return NotFound();
             }
+            var targetTransaction = await _context.TargetTransactions.FirstOrDefaultAsync(t => t.TransactionId == transaction.ID);
+
+            if (targetTransaction != null)
+            {
+                _context.TargetTransactions.Remove(targetTransaction);
+            }
 
             _context.Transactions.Remove(transaction);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            
+            return RedirectToAction(nameof(Index));
         }
     }
 }

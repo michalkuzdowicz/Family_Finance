@@ -23,6 +23,7 @@ namespace Family_Finance.Controllers
             
             return View(await _context.FinancialTarget
                 .Where(ft => ft.FamilyGroupID == user.FamilyGroupID)
+                .Include(ft => ft.TargetTransactions)
                 .ToListAsync());
         }
 
@@ -37,7 +38,9 @@ namespace Family_Finance.Controllers
             }
 
             var financialTarget = await _context.FinancialTarget
-                .FirstOrDefaultAsync(m => m.Id == id && m.FamilyGroupID == user.FamilyGroupID);
+                .Include(ft => ft.TargetTransactions)
+                .FirstOrDefaultAsync(ft => ft.Id == id && ft.FamilyGroupID == user.FamilyGroupID);
+
             if (financialTarget == null)
             {
                 return NotFound();

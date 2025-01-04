@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Family_Finance.Models
 {
@@ -32,13 +33,21 @@ namespace Family_Finance.Models
         public string? Description { get; set; }
 
         [Required]
+        [DisplayName("Osoba")]
         public string UserID { get; set; }
+
+        [ForeignKey("UserID")]
+        public ApplicationUser User { get; set; }
 
         // Relacja do grupy/rodziny
         public int FamilyGroupID { get; set; }
+
+        [ForeignKey("FamilyGroupID")]
         public FamilyGroup FamilyGroup { get; set; }
 
         public int? FinancialTargetID { get; set; }
+
+        [ForeignKey("FinancialTargetID")]
         public FinancialTarget? FinancialTarget { get; set; }
     }
 }

@@ -29,7 +29,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
@@ -40,18 +40,35 @@
             <td>
                 @Html.DisplayFor(modelItem => item.TargetAmount)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CurrentAmount)
+            <td style="align-content: center">
+            @{
+               var percentage = item.TargetAmount > 0
+                    ? (int)Math.Min((item.CurrentAmount / item.TargetAmount * 100), 100)
+                    : 0;
+            }
+            <div class="progress" style="height: 8px;">
+               <div class="progress-bar bg-primary" role="progressbar"
+                    style="width: @percentage%"
+                    aria-valuenow="@percentage"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+               </div>
+            </div>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedDate)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <div class="d-flex flex-row gap-2">
+                    <a class="btn btn-success" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    <a class="btn btn-warning" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        
+                    <form asp-action="Delete" asp-route-id="@item.Id" onsubmit="return confirm('Czy jesteœ pewnie, to usunie trwale cel finansowy?');">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>

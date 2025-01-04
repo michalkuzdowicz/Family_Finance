@@ -30,6 +30,12 @@ namespace Family_Finance.Data
                     .HasForeignKey(e => e.InviterId)
                     .OnDelete(DeleteBehavior.Restrict); // lub inne zachowanie w przypadku usunięcia
             });
+
+            modelBuilder.Entity<TargetTransaction>()
+               .HasOne(tt => tt.FinancialTarget)
+               .WithMany(ft => ft.TargetTransactions)
+               .HasForeignKey(tt => tt.FinancialTargetId)
+               .OnDelete(DeleteBehavior.Cascade);
         }
         
     }
