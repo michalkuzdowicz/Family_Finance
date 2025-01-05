@@ -1,14 +1,16 @@
 ﻿@model Family_Finance.Models.FamilyGroup
 
+@using System.Security.Claims
+
 @{
     ViewData["Title"] = "MyFamily - Family Finance";
-    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 }
 
 <div class="container-fluid text-light">
     <div class="row justify-content-center">
         <div class="col-lg-8 text-center">
-                <h3 class="display-4 mb-4" style="font-weight: 600;">Manage Family</h3>
+                <h3 class="display-4 mb-4" style="font-weight: 600;">My Family</h3>
         </div>
     </div>
 
@@ -26,58 +28,81 @@
         </div>
     }
 
-    <div class="row justify-content-center">
-        
-        <div class="col-lg-8">
-            <div class="glass-card p-4 h-100">
-                <h2 class="h3 mb-4 text-light">Family Members</h2>
-                @foreach (var member in Model.Members)
-                {
-                    <div class="stat-card p-3 mb-3 glass-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-light">@member.UserName (@member.Email)</span>
-                            @if (Model.HeadOfFamilyID == userId && member.Id != userId)
-                            {
-                                <form asp-action="RemoveMember" asp-controller="Family" method="post" class="mb-0">
-                                    <input type="hidden" name="memberId" value="@member.Id" />
-                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                                </form>
-                            }
-                        </div>
-                    </div>
-                }
-                @if (!Model.Members.Any())
-                {
-                    <p class="text-light">No members found in your family group.</p>
-                }
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center">
-                <h5 class="text-light mb-3">Invite New Member</h5>
-                <form asp-action="SendInvitation" asp-controller="Family" method="post">
-                    <div class="mb-3">
-                        <input type="email" name="inviteeEmail" class="form-control bg-dark text-light" placeholder="Enter email" required />
-                    </div>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">Send Invitation</button>
-                </form>
-                @if (ViewData["Error_Message"] != null)
-                {
-                    <p class="text-danger mt-3">@ViewData["Error_Message"]</p>
-                }
-            </div>
-        </div>
-
-        <div class="col-lg-12 d-flex justify-content-end mt-3">
-            @using (Html.BeginForm("DivorceFamily", "Family", FormMethod.Post))
+    <div class="container">
+        <!-- Wiersz z kafelkami dla członków rodziny -->
+        <div class="row mb-4">
+            @if (ViewData["IsHeadOfFamily"] == null || !(bool)ViewData["IsHeadOfFamily"])
             {
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to divorce your family? This action cannot be undone.')">
-                    Divorce
-                </button>
+                <div class="col-lg-3">
+                    <div class="glass-card p-4 text-center h-100">Empty Tile 1</div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="glass-card p-4 text-center h-100">Empty Tile 2</div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="glass-card p-4 text-center h-100">Empty Tile 3</div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="glass-card p-4 text-center h-100">Empty Tile 4</div>
+                </div>
             }
         </div>
 
+        <!-- Wiersz z listą członków rodziny i funkcjami głowy rodziny -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="glass-card p-4 h-100">
+                    <h2 class="h3 mb-4 text-light">Family Members</h2>
+                    @foreach (var member in Model.Members)
+                    {
+                        <div class="stat-card p-3 mb-3 glass-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-light">@member.UserName (@member.Email)</span>
+                                @if (ViewData["IsHeadOfFamily"] != null && (bool)ViewData["IsHeadOfFamily"])
+                                {
+                                    <form asp-action="RemoveMember" asp-controller="Family" method="post">
+                                        <input type="hidden" name="userId" value="@member.Id" />
+                                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.Members.Any())
+                    {
+                        <p class="text-light">No members found in your family group.</p>
+                    }
+                </div>
+            </div>
+
+            @if (ViewData["IsHeadOfFamily"] != null && (bool)ViewData["IsHeadOfFamily"])
+            {
+                <div class="col-lg-4">
+                    <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center">
+                        <h5 class="text-light mb-3">Invite New Member</h5>
+                        <form asp-action="SendInvitation" asp-controller="Family" method="post">
+                            <div class="mb-3">
+                                <input type="email" name="inviteeEmail" class="form-control bg-dark text-light" placeholder="Enter email" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">Send Invitation</button>
+                        </form>
+                        @if (ViewData["Error_Message"] != null)
+                        {
+                            <p class="text-danger mt-3">@ViewData["Error_Message"]</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-lg-12 d-flex justify-content-end mt-3">
+                    @using (Html.BeginForm("DivorceFamily", "Family", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to divorce your family? This action cannot be undone.')">
+                            Divorce
+                        </button>
+                    }
+                </div>
+            }
+        </div>
     </div>
-</div>
+

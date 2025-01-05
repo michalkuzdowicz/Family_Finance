@@ -17,7 +17,7 @@ namespace Family_Finance.Controllers
 
         ////////////////\\\\\\\\\\\\\\\\\
         ////////////////\\\\\\\\\\\\\\\\\
-        /////// Manage My Family \\\\\\\\
+        /////////// My Family \\\\\\\\\\\
         ////////////////\\\\\\\\\\\\\\\\\
         ////////////////\\\\\\\\\\\\\\\\\
         public IActionResult Index()
@@ -30,15 +30,14 @@ namespace Family_Finance.Controllers
 
             var familyGroup = _context.FamilyGroups
                 .Include(f => f.Members)
-                .FirstOrDefault(f => f.HeadOfFamilyID == userId);
+                .FirstOrDefault(f => f.Members.Any(m => m.Id == userId));
+
             if (familyGroup == null)
             {
                 return NotFound();
             }
 
-            // Upewnij się, że użytkownik jest głową rodziny
             var isHeadOfFamily = familyGroup.HeadOfFamilyID == userId;
-
             ViewData["IsHeadOfFamily"] = isHeadOfFamily;
 
             return View(familyGroup);
@@ -48,6 +47,12 @@ namespace Family_Finance.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveMember(string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "User ID is missing.";
+                return RedirectToAction("Index");
+            }
+
             var member = await _userManager.FindByIdAsync(userId);
 
             if (member == null)
@@ -56,13 +61,30 @@ namespace Family_Finance.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Usunięcie użytkownika z rodziny
-            member.FamilyGroupID = null;
-            await _userManager.UpdateAsync(member);
+            // Sprawdzenie, czy użytkownik jest członkiem grupy rodzinnej
+            if (member.FamilyGroupID == null)
+            {
+                TempData["ErrorMessage"] = "The user is not part of any family group.";
+                return RedirectToAction("Index");
+            }
 
-            TempData["SuccessMessage"] = "Family member removed successfully!";
+            // Usunięcie użytkownika z grupy rodzinnej
+            member.FamilyGroupID = null;
+            var result = await _userManager.UpdateAsync(member);
+
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Family member removed successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to remove family member.";
+            }
+
             return RedirectToAction("Index");
         }
+
+
 
         [Authorize]
         [HttpPost]
