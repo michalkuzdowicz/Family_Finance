@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Family_Finance.Data.Migrations;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.Authorization;
+using OfficeOpenXml;
 
 namespace Family_Finance.Controllers
 {
@@ -45,7 +46,89 @@ namespace Family_Finance.Controllers
 
             return View(transactions);
         }
-        
+
+
+        public IActionResult ExportToExcel(DateTime? startDate, DateTime? endDate, int? familyGroupId)
+        {
+            var currentUserFamilyGroupId = _userManager.GetUserAsync(User).Result.FamilyGroupID; 
+
+            if (familyGroupId == null)
+            {
+                familyGroupId = currentUserFamilyGroupId;
+            }
+
+            // Sprawdź, czy familyGroupId jest dostępny
+            if (!familyGroupId.HasValue)
+            {
+                TempData["ErrorMessage"] = "No family group ID provided for the current user.";
+                return RedirectToAction("Index");
+            }
+
+            var transactions = _context.Transactions.AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                startDate = startDate.Value.Date;
+                transactions = transactions.Where(t => t.Date >= startDate);
+            }
+
+            if (endDate.HasValue)
+            {
+                endDate = endDate.Value.Date.AddDays(1).AddSeconds(-1);
+                transactions = transactions.Where(t => t.Date <= endDate);
+            }
+
+            // Filtruj transakcje po FamilyGroupID
+            transactions = transactions.Where(t => t.FamilyGroupID == familyGroupId);
+
+            var filteredTransactions = transactions.ToList();
+            if (!filteredTransactions.Any())
+            {
+                TempData["ErrorMessage"] = "No transactions found in the selected period for this family.";
+                return RedirectToAction("Index");
+            }
+
+            var fileName = "Transactions_" +
+                           (startDate?.ToString("yyyyMMdd") ?? "All") +
+                           "_" +
+                           (endDate?.ToString("yyyyMMdd") ?? "All") +
+                           ".xlsx";
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Transactions");
+
+                // Dodaj nagłówki kolumn
+                worksheet.Cells[1, 1].Value = "Name";
+                worksheet.Cells[1, 2].Value = "Value";
+                worksheet.Cells[1, 3].Value = "Type";
+                worksheet.Cells[1, 4].Value = "Date";
+                worksheet.Cells[1, 5].Value = "User";
+
+                var row = 2;
+                foreach (var transaction in filteredTransactions)
+                {
+                    worksheet.Cells[row, 1].Value = transaction.Name;
+                    worksheet.Cells[row, 2].Value = transaction.Amount;
+                    worksheet.Cells[row, 3].Value = transaction.Type;
+                    worksheet.Cells[row, 4].Value = transaction.Date.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row, 5].Value = transaction.User;
+
+                    row++;
+                }
+
+                // Wygeneruj plik
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+        }
+
+
+
+
         public async Task<IActionResult> CreateTransaction()
         {
             var user = await _userManager.GetUserAsync(User);

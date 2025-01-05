@@ -5,12 +5,16 @@
 @{
     ViewData["Title"] = "MyFamily - Family Finance";
     var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    var incomeTotal = Model?.Transactions?.Where(t => t.Type == "Income").Sum(t => t.Amount) ?? 0.00m;
+    var expenseTotal = Model?.Transactions?.Where(t => t.Type == "Expense").Sum(t => t.Amount) ?? 0.00m;
+    var balance = incomeTotal - expenseTotal;
 }
 
 <div class="container-fluid text-light">
     <div class="row justify-content-center">
         <div class="col-lg-8 text-center">
-                <h3 class="display-4 mb-4" style="font-weight: 600;">My Family</h3>
+            <h3 class="display-4 mb-4" style="font-weight: 600;">My Family</h3>
         </div>
     </div>
 
@@ -31,52 +35,67 @@
     <div class="container">
         <!-- Wiersz z kafelkami dla członków rodziny -->
         <div class="row mb-4">
-            @if (ViewData["IsHeadOfFamily"] == null || !(bool)ViewData["IsHeadOfFamily"])
-            {
-                <div class="col-lg-3">
-                    <div class="glass-card p-4 text-center h-100">Empty Tile 1</div>
+            <div class="col-lg-3">
+                <div class="glass-card p-4 text-center h-100">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h5>Members Count</h5>
+                    <p>@Model?.Members?.Count</p>
                 </div>
-                <div class="col-lg-3">
-                    <div class="glass-card p-4 text-center h-100">Empty Tile 2</div>
+            </div>
+            <div class="col-lg-3">
+                <div class="glass-card p-4 text-center h-100">
+                    <i class="fas fa-file-invoice-dollar fa-3x mb-3"></i>
+                    <h5>Transactions Count</h5>
+                    <p>@Model?.Transactions?.Count</p>
                 </div>
-                <div class="col-lg-3">
-                    <div class="glass-card p-4 text-center h-100">Empty Tile 3</div>
+            </div>
+            <div class="col-lg-3">
+                <div class="glass-card p-4 text-center h-100">
+                    <i class="fas fa-plus-circle fa-3x mb-3"></i>
+                    <h5>Positive Transactions</h5>
+                    <p>@Model?.Transactions?.Where(t => t.Type == "Income").Sum(t => t.Amount).ToString("C")</p>
                 </div>
-                <div class="col-lg-3">
-                    <div class="glass-card p-4 text-center h-100">Empty Tile 4</div>
+            </div>
+            <div class="col-lg-3">
+                <div class="glass-card p-4 text-center h-100">
+                    <i class="fas fa-balance-scale fa-3x mb-3"></i>
+                    <h5>Balance</h5>
+                    <p>
+                        @balance.ToString("C")
+                    </p>
                 </div>
-            }
+            </div>
         </div>
 
         <!-- Wiersz z listą członków rodziny i funkcjami głowy rodziny -->
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="glass-card p-4 h-100">
-                    <h2 class="h3 mb-4 text-light">Family Members</h2>
-                    @foreach (var member in Model.Members)
-                    {
-                        <div class="stat-card p-3 mb-3 glass-card">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-light">@member.UserName (@member.Email)</span>
-                                @if (ViewData["IsHeadOfFamily"] != null && (bool)ViewData["IsHeadOfFamily"])
-                                {
-                                    <form asp-action="RemoveMember" asp-controller="Family" method="post">
-                                        <input type="hidden" name="userId" value="@member.Id" />
-                                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                                    </form>
-                                }
-                            </div>
-                        </div>
-                    }
-                    @if (!Model.Members.Any())
-                    {
-                        <p class="text-light">No members found in your family group.</p>
-                    }
-                </div>
-            </div>
-
             @if (ViewData["IsHeadOfFamily"] != null && (bool)ViewData["IsHeadOfFamily"])
             {
+                <div class="col-lg-8">
+                    <div class="glass-card p-4 h-100">
+                        <h2 class="h3 mb-4 text-light">Family Members</h2>
+                        @foreach (var member in Model.Members)
+                        {
+                            <div class="stat-card p-3 mb-3 glass-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-light">@member.UserName (@member.Email)</span>
+                                    @if (ViewData["IsHeadOfFamily"] != null && (bool)ViewData["IsHeadOfFamily"])
+                                    {
+                                        <form asp-action="RemoveMember" asp-controller="Family" method="post">
+                                            <input type="hidden" name="userId" value="@member.Id" />
+                                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        @if (!Model.Members.Any())
+                        {
+                            <p class="text-light">No members found in your family group.</p>
+                        }
+                    </div>
+                </div>
+
                 <div class="col-lg-4">
                     <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center">
                         <h5 class="text-light mb-3">Invite New Member</h5>
@@ -105,4 +124,3 @@
             }
         </div>
     </div>
-

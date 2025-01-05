@@ -22,25 +22,23 @@ namespace Family_Finance.Controllers
         ////////////////\\\\\\\\\\\\\\\\\
         public IActionResult Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var familyGroup = _context.FamilyGroups
                 .Include(f => f.Members)
+                .Include(f => f.Transactions)
                 .FirstOrDefault(f => f.Members.Any(m => m.Id == userId));
 
-            if (familyGroup == null)
+            if (familyGroup != null)
             {
-                return NotFound();
+                ViewData["IsHeadOfFamily"] = familyGroup.HeadOfFamilyID == userId;
+                return View(familyGroup);
             }
-
-            var isHeadOfFamily = familyGroup.HeadOfFamilyID == userId;
-            ViewData["IsHeadOfFamily"] = isHeadOfFamily;
-
-            return View(familyGroup);
+            else
+            {
+                ViewData["IsHeadOfFamily"] = false;
+                return View();
+            }
         }
 
 

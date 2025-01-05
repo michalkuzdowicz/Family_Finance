@@ -25,10 +25,11 @@
 
                 <span class="input-group-text">do</span>
                 <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
-               
+
                 <div class="ml-2">
                     <button type="submit" class="btn btn-primary">Filtruj</button>
                     <a href="@Url.Action("Index")" class="btn btn-secondary">Reset</a>
+                    <a href="@Url.Action("ExportToExcel", new { startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="btn btn-success">Export to Excel</a>
                 </div>
             </div>
         </form>
