@@ -1,6 +1,10 @@
+using Family_Finance.Data;
 using Family_Finance.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace Family_Finance.Controllers
 {
@@ -8,13 +12,30 @@ namespace Family_Finance.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public HomeController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ILogger<HomeController> logger)
         {
+            _context = context;
+            _userManager = userManager;
             _logger = logger;
         }
 
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser != null)
+            {
+                // Sprawdzenie, czy u¿ytkownik ma niezaakceptowane zaproszenia
+                var hasPendingInvitations = _context.FamilyInvitations
+                    .Any(i => i.InviteeEmail == currentUser.Email && !i.IsAccepted);
+
+                ViewBag.HasPendingInvitations = hasPendingInvitations;
+            }
+
             return View();
         }
 

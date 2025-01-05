@@ -206,3 +206,20 @@ body {
   justify-content: center !important;
   align-items: center !important;
 }
+
+.nav-link {
+    position: relative;
+}
+
+.small-dot.bg-danger {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 6px;
+    height: 6px;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}

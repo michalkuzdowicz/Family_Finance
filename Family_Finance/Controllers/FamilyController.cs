@@ -144,8 +144,19 @@ namespace Family_Finance.Controllers
         ////////////////\\\\\\\\\\\\\\\\\
         ////////////////\\\\\\\\\\\\\\\\\
         [Authorize]
-        public IActionResult CreateIndex()
+        public async Task<IActionResult> CreateIndex()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser != null)
+            {
+                // Sprawdzenie, czy użytkownik ma niezaakceptowane zaproszenia
+                var hasPendingInvitations = _context.FamilyInvitations
+                    .Any(i => i.InviteeEmail == currentUser.Email && !i.IsAccepted);
+
+                ViewBag.HasPendingInvitations = hasPendingInvitations;
+            }
+
             return View();
         }
 
@@ -206,7 +217,7 @@ namespace Family_Finance.Controllers
 
             // Pobranie aktualnej rodziny głowy rodziny
             var familyGroup = await _context.FamilyGroups
-                .FirstOrDefaultAsync(f => f.HeadOfFamilyID == inviter.Id); // Przykład, w zależności od struktury bazy danych
+                .FirstOrDefaultAsync(f => f.HeadOfFamilyID == inviter.Id);
 
             if (familyGroup == null)
             {
@@ -214,13 +225,23 @@ namespace Family_Finance.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Tworzenie zaproszenia
+            // Sprawdzamy, czy zaproszenie do tej rodziny już istnieje
+            var existingInvitation = await _context.FamilyInvitations
+                .FirstOrDefaultAsync(i => i.InviteeEmail == inviteeEmail && i.FamilyGroupID == familyGroup.ID);
+
+            if (existingInvitation != null)
+            {
+                TempData["ErrorMessage"] = "This user has already been invited to this family.";
+                return RedirectToAction("Index", "Family");
+            }
+
+            // Tworzenie nowego zaproszenia
             var invitation = new FamilyInvitation
             {
                 InvitationDate = DateTime.Now,
                 InviteeEmail = inviteeEmail,
                 InviterID = inviter.Id,
-                FamilyGroupID = familyGroup.ID, // Przypisanie rodziny do zaproszenia
+                FamilyGroupID = familyGroup.ID,
                 IsAccepted = false
             };
 
@@ -229,7 +250,6 @@ namespace Family_Finance.Controllers
 
             TempData["SuccessMessage"] = "Invitation sent successfully!";
             return RedirectToAction("Index", "Family");
-
         }
 
 
@@ -239,6 +259,17 @@ namespace Family_Finance.Controllers
         [Authorize]
         public async Task<IActionResult> MyInvitations()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser != null)
+            {
+                // Sprawdzenie, czy użytkownik ma niezaakceptowane zaproszenia
+                var hasPendingInvitations = _context.FamilyInvitations
+                    .Any(i => i.InviteeEmail == currentUser.Email && !i.IsAccepted);
+
+                ViewBag.HasPendingInvitations = hasPendingInvitations;
+            }
+
             var userId = _userManager.GetUserId(User);
 
             var invitations = await _context.FamilyInvitations
@@ -289,13 +320,15 @@ namespace Family_Finance.Controllers
             user.FamilyGroupID = invitation.Inviter.FamilyGroupID;
             invitation.IsAccepted = true;
 
+            // Usunięcie zaproszenia po zaakceptowaniu
+            _context.FamilyInvitations.Remove(invitation);
+
             // Aktualizacja danych w bazie
             _context.Update(user);
-            _context.Update(invitation);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Successfully joined the family!";
-            return RedirectToAction("Index", "Finance");
+            return RedirectToAction("Index", "Family");
         }
 
         //
@@ -318,7 +351,7 @@ namespace Family_Finance.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Invitation rejected successfully!";
-            return RedirectToAction("Index", "Finance");
+            return RedirectToAction("Index", "Home");
         }
 
     }

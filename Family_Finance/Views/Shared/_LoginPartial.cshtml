@@ -14,7 +14,13 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="Family" asp-action="MyInvitations">Invitations</a>
+                <a class="nav-link text-dark" asp-area="" asp-controller="Family" asp-action="MyInvitations">
+                    Invitations
+                    @if (ViewBag.HasPendingInvitations != null && ViewBag.HasPendingInvitations == true)
+                    {
+                        <span class="small-dot bg-danger"></span>
+                    }
+                </a>
             </li>
         }
         else
