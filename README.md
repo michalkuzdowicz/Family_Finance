@@ -43,7 +43,7 @@ cd Family_Finance
 1. Configure your appsettings.json to connect to your local SQL Server database.
 2. Run the migrations to set up the database schema:
 ```
-dotnet ef database update
+dotnet ef database update | Update-Database
 ```
 
 ### Running the Application
@@ -74,3 +74,6 @@ Please follow the coding standards and include tests for new features or fixes.
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Diagram UML
+![screenshot](images/uml.jpg)
