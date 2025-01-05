@@ -1,4 +1,19 @@
 ﻿<h2 class="text-light display-4 mb-4" style="font-weight: 600;">Transakcje</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 <a asp-action="CreateTransaction" class="btn btn-primary">Dodaj nowy wpis</a>
 <table class="table mt-5">
     <div class="mt-3">

@@ -5,6 +5,21 @@
 }
 
 <h1 class="text-light">Cel finansowy</h1>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
 <a class="btn btn-primary" asp-action="Create">Dodaj nowy cel</a>
 
 <table class="table text-light">

@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var currentUser = UserManager.GetUserAsync(User).Result;
+
+    if (currentUser != null && currentUser.FamilyGroupID == null)
+    {
+        <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+            <img src="~/images/logo.jpeg" alt="Family Finance Logo" class="navbar-logo me-2" />
+        </a>
+    }
+    else
+    {
+        <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Family" asp-action="Index">
+            <img src="~/images/logo.jpeg" alt="Family Finance Logo" class="navbar-logo me-2" />
+        </a>
+    }
+}
+else
+{
+    <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+        <img src="~/images/logo.jpeg" alt="Family Finance Logo" class="navbar-logo me-2" />
+    </a>
+}

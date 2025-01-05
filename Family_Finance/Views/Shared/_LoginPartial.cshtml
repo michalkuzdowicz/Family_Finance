@@ -3,61 +3,63 @@
 @inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav flex-grow-1">
-@if (SignInManager.IsSignedIn(User))
-{
-    @if (User.Identity.IsAuthenticated && UserManager.GetUserAsync(User).Result.FamilyGroupID == null)
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var currentUser = UserManager.GetUserAsync(User).Result;
+
+        if (currentUser != null && currentUser.FamilyGroupID == null)
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Family" asp-action="CreateIndex">Create family</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Family" asp-action="MyInvitations">Invitations</a>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Family" asp-action="Index">My Family</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Finance" asp-action="Index">Finance</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="FinancialTarget" asp-action="Index">Financial Target</a>
+            </li>
+        }
+    }
+</ul>
+
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Family" asp-action="Index">Create family</a>
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                <i class="fas fa-user-circle me-1"></i>@User.Identity?.Name
+            </a>
         </li>
-
         <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="Family" asp-action="MyInvitations">Invitations</a>
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="nav-link btn btn-link">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </button>
+            </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Family" asp-action="SendInvite">Invite to Family</a>
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
+                <i class="fas fa-user-plus me-1"></i>Register
+            </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Finance" asp-action="Index">Finance</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="FinancialTarget" asp-action="Index">Financial Target</a>
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
+                <i class="fas fa-sign-in-alt me-1"></i>Login
+            </a>
         </li>
     }
-}
-</ul>
-
-
-<ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
-            <i class="fas fa-user-circle me-1"></i>@User.Identity?.Name
-        </a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button type="submit" class="nav-link btn btn-link">
-                <i class="fas fa-sign-out-alt me-1"></i>Logout
-            </button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
-            <i class="fas fa-user-plus me-1"></i>Register
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
-            <i class="fas fa-sign-in-alt me-1"></i>Login
-        </a>
-    </li>
-}
 </ul>

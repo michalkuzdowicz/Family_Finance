@@ -21,10 +21,10 @@
             <div class="col-md-4">
                 <div class="card glass-card">
                     <div class="card-body">
-                        <h5 class="card-title">Invitation to the family: @invitation.FamilyGroup.Name</h5>
+                        <h5 class="card-title">Invitation to the family: @(invitation.FamilyGroup != null ? invitation.FamilyGroup.Name : "No Family")</h5>
                         <p class="card-text">Would you like to join?</p>
-                        <a href="@Url.Action("AcceptInvitation", "Invitation", new { id = invitation.Id })" class="btn btn-success">Accept</a>
-                        <a href="@Url.Action("RejectInvitation", "Invitation", new { id = invitation.Id })" class="btn btn-danger">Reject</a>
+                        <a href="@Url.Action("AcceptInvitation", "Family", new { id = invitation.ID })" class="btn btn-success">Accept</a>
+                        <a href="@Url.Action("RejectInvitation", "Family", new { id = invitation.ID })" class="btn btn-danger">Reject</a>
                     </div>
                 </div>
             </div>

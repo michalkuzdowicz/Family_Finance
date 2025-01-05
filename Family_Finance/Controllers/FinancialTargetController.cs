@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Family_Finance.Data;
 using Family_Finance.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Family_Finance.Controllers
 {
@@ -15,8 +16,9 @@ namespace Family_Finance.Controllers
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
-        
+
         // GET: FinancialTarget
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -81,12 +83,13 @@ namespace Family_Finance.Controllers
 
                 _context.FinancialTarget.Add(financialTarget);
                 await _context.SaveChangesAsync();
-                
+
+                TempData["SuccessMessage"] = "Target added successfully!";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception e)
             {
-                ModelState.AddModelError("", "An error occurred while creating the financial target. Please try again.");
+                ModelState.AddModelError("", "An error occurred while updating the financial target. Please try again.");
                 return View();
             }
         }
@@ -133,6 +136,7 @@ namespace Family_Finance.Controllers
                 _context.Update(financialTarget);
                 await _context.SaveChangesAsync();
 
+                TempData["SuccessMessage"] = "Target updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
@@ -181,6 +185,7 @@ namespace Family_Finance.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Target deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 

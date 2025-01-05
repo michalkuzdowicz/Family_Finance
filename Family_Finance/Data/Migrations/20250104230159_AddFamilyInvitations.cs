@@ -19,7 +19,8 @@ namespace Family_Finance.Data.Migrations
                     InviterId = table.Column<string>(nullable: false),
                     InviteeEmail = table.Column<string>(nullable: false),
                     IsAccepted = table.Column<bool>(nullable: false),
-                    InvitationDate = table.Column<DateTime>(nullable: false)
+                    InvitationDate = table.Column<DateTime>(nullable: false),
+                    FamilyGroupID = table.Column<int>(nullable: true) // Dodano kolumnę FamilyGroupID
                 },
                 constraints: table =>
                 {
@@ -30,13 +31,25 @@ namespace Family_Finance.Data.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey( // Dodano klucz obcy dla FamilyGroupID
+                        name: "FK_FamilyInvitations_FamilyGroups_FamilyGroupID",
+                        column: x => x.FamilyGroupID,
+                        principalTable: "FamilyGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_FamilyInvitations_InviterId",
                 table: "FamilyInvitations",
                 column: "InviterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FamilyInvitations_FamilyGroupID", // Dodano indeks dla FamilyGroupID
+                table: "FamilyInvitations",
+                column: "FamilyGroupID");
         }
+
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {

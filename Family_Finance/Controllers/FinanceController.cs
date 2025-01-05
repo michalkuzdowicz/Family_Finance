@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Family_Finance.Data.Migrations;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Family_Finance.Controllers
 {
@@ -14,6 +15,7 @@ namespace Family_Finance.Controllers
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
 
+        [Authorize]
         public async Task<IActionResult> Index(DateTime? startDate = null, DateTime? endDate = null)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -130,8 +132,7 @@ namespace Family_Finance.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            
-
+            TempData["SuccessMessage"] = "Transaction added successfully!";
             return RedirectToAction("Index");
         }
 
@@ -199,6 +200,7 @@ namespace Family_Finance.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Transaction updated successfully!";
             return RedirectToAction("Index");
         }
 
@@ -222,7 +224,8 @@ namespace Family_Finance.Controllers
 
             _context.Transactions.Remove(transaction);
             await _context.SaveChangesAsync();
-            
+
+            TempData["SuccessMessage"] = "Transaction deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
     }

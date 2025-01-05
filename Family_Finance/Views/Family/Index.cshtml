@@ -5,12 +5,19 @@
     var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
 
-<div class="container-fluid text-light py-5">
+<div class="container-fluid text-light">
     <div class="row justify-content-center">
         <div class="col-lg-8 text-center">
                 <h3 class="display-4 mb-4" style="font-weight: 600;">Manage Family</h3>
         </div>
     </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
 
     @if (TempData["ErrorMessage"] != null)
     {
@@ -20,6 +27,7 @@
     }
 
     <div class="row justify-content-center">
+        
         <div class="col-lg-8">
             <div class="glass-card p-4 h-100">
                 <h2 class="h3 mb-4 text-light">Family Members</h2>
@@ -48,7 +56,7 @@
         <div class="col-lg-4">
             <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center">
                 <h5 class="text-light mb-3">Invite New Member</h5>
-                <form asp-action="SendInvite" asp-controller="Family" method="post">
+                <form asp-action="SendInvitation" asp-controller="Family" method="post">
                     <div class="mb-3">
                         <input type="email" name="inviteeEmail" class="form-control bg-dark text-light" placeholder="Enter email" required />
                     </div>
@@ -60,5 +68,16 @@
                 }
             </div>
         </div>
+
+        <div class="col-lg-12 d-flex justify-content-end mt-3">
+            @using (Html.BeginForm("DivorceFamily", "Family", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to divorce your family? This action cannot be undone.')">
+                    Divorce
+                </button>
+            }
+        </div>
+
     </div>
 </div>

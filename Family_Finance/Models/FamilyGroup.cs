@@ -6,6 +6,8 @@
         public string Name { get; set; }
         public string HeadOfFamilyID { get; set; }
 
+
+        public ICollection<FamilyInvitation> Invitations { get; set; }
         public ICollection<ApplicationUser> Members { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
         public ICollection<FinancialTarget> FinancialTargets { get; set; }

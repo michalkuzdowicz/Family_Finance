@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Family_Finance.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241230212102_AddDiscriminatorToApplicationUser")]
-    partial class AddDiscriminatorToApplicationUser
+    [Migration("20241231000156_AddFamilyInvitations")]
+    partial class AddFamilyInvitations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,76 @@ namespace Family_Finance.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Family_Finance.Models.ApplicationUser", b =>
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<int>("AccessFailedCount")
+                    .HasColumnType("int");
+
+                b.Property<string>("ConcurrencyStamp")
+                    .IsConcurrencyToken()
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("Email")
+                    .HasMaxLength(256)
+                    .HasColumnType("nvarchar(256)");
+
+                b.Property<bool>("EmailConfirmed")
+                    .HasColumnType("bit");
+
+                b.Property<int?>("FamilyGroupID")
+                    .HasColumnType("int");
+
+                b.Property<bool>("LockoutEnabled")
+                    .HasColumnType("bit");
+
+                b.Property<DateTimeOffset?>("LockoutEnd")
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<string>("NormalizedEmail")
+                    .HasMaxLength(256)
+                    .HasColumnType("nvarchar(256)");
+
+                b.Property<string>("NormalizedUserName")
+                    .HasMaxLength(256)
+                    .HasColumnType("nvarchar(256)");
+
+                b.Property<string>("PasswordHash")
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("PhoneNumber")
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<bool>("PhoneNumberConfirmed")
+                    .HasColumnType("bit");
+
+                b.Property<string>("SecurityStamp")
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<bool>("TwoFactorEnabled")
+                    .HasColumnType("bit");
+
+                b.Property<string>("UserName")
+                    .HasMaxLength(256)
+                    .HasColumnType("nvarchar(256)");
+
+                b.HasKey("Id");
+
+                b.HasIndex("FamilyGroupID");
+
+                b.HasIndex("NormalizedEmail")
+                    .HasDatabaseName("EmailIndex");
+
+                b.HasIndex("NormalizedUserName")
+                    .IsUnique()
+                    .HasDatabaseName("UserNameIndex")
+                    .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                b.ToTable("AspNetUsers", (string)null);
+            });
 
             modelBuilder.Entity("Family_Finance.Models.FamilyGroup", b =>
             {
@@ -48,29 +118,29 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Family_Finance.Models.FamilyInvitation", b =>
             {
-                b.Property<int>("ID")
+                b.Property<int>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("int");
 
-                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                b.Property<DateTime>("DateSent")
+                b.Property<DateTime>("InvitationDate")
                     .HasColumnType("datetime2");
 
-                b.Property<string>("Email")
+                b.Property<string>("InviteeEmail")
                     .IsRequired()
                     .HasColumnType("nvarchar(max)");
 
-                b.Property<int>("FamilyGroupID")
-                    .HasColumnType("int");
-
-                b.Property<string>("InvitedByID")
+                b.Property<string>("InviterId")
                     .IsRequired()
-                    .HasColumnType("nvarchar(max)");
+                    .HasColumnType("nvarchar(450)");
 
-                b.HasKey("ID");
+                b.Property<bool>("IsAccepted")
+                    .HasColumnType("bit");
 
-                b.HasIndex("FamilyGroupID");
+                b.HasKey("Id");
+
+                b.HasIndex("InviterId");
 
                 b.ToTable("FamilyInvitations");
             });
@@ -163,80 +233,6 @@ namespace Family_Finance.Data.Migrations
                 b.ToTable("AspNetRoleClaims", (string)null);
             });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-            {
-                b.Property<string>("Id")
-                    .HasColumnType("nvarchar(450)");
-
-                b.Property<int>("AccessFailedCount")
-                    .HasColumnType("int");
-
-                b.Property<string>("ConcurrencyStamp")
-                    .IsConcurrencyToken()
-                    .HasColumnType("nvarchar(max)");
-
-                b.Property<string>("Discriminator")
-                    .IsRequired()
-                    .HasMaxLength(21)
-                    .HasColumnType("nvarchar(21)");
-
-                b.Property<string>("Email")
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
-
-                b.Property<bool>("EmailConfirmed")
-                    .HasColumnType("bit");
-
-                b.Property<bool>("LockoutEnabled")
-                    .HasColumnType("bit");
-
-                b.Property<DateTimeOffset?>("LockoutEnd")
-                    .HasColumnType("datetimeoffset");
-
-                b.Property<string>("NormalizedEmail")
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
-
-                b.Property<string>("NormalizedUserName")
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
-
-                b.Property<string>("PasswordHash")
-                    .HasColumnType("nvarchar(max)");
-
-                b.Property<string>("PhoneNumber")
-                    .HasColumnType("nvarchar(max)");
-
-                b.Property<bool>("PhoneNumberConfirmed")
-                    .HasColumnType("bit");
-
-                b.Property<string>("SecurityStamp")
-                    .HasColumnType("nvarchar(max)");
-
-                b.Property<bool>("TwoFactorEnabled")
-                    .HasColumnType("bit");
-
-                b.Property<string>("UserName")
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
-
-                b.HasKey("Id");
-
-                b.HasIndex("NormalizedEmail")
-                    .HasDatabaseName("EmailIndex");
-
-                b.HasIndex("NormalizedUserName")
-                    .IsUnique()
-                    .HasDatabaseName("UserNameIndex")
-                    .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                b.ToTable("AspNetUsers", (string)null);
-
-                b.HasDiscriminator().HasValue("IdentityUser");
-
-                b.UseTphMappingStrategy();
-            });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
             {
                 b.Property<int>("Id")
@@ -265,12 +261,10 @@ namespace Family_Finance.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
             {
                 b.Property<string>("LoginProvider")
-                    .HasMaxLength(128)
-                    .HasColumnType("nvarchar(128)");
+                    .HasColumnType("nvarchar(450)");
 
                 b.Property<string>("ProviderKey")
-                    .HasMaxLength(128)
-                    .HasColumnType("nvarchar(128)");
+                    .HasColumnType("nvarchar(450)");
 
                 b.Property<string>("ProviderDisplayName")
                     .HasColumnType("nvarchar(max)");
@@ -307,12 +301,10 @@ namespace Family_Finance.Data.Migrations
                     .HasColumnType("nvarchar(450)");
 
                 b.Property<string>("LoginProvider")
-                    .HasMaxLength(128)
-                    .HasColumnType("nvarchar(128)");
+                    .HasColumnType("nvarchar(450)");
 
                 b.Property<string>("Name")
-                    .HasMaxLength(128)
-                    .HasColumnType("nvarchar(128)");
+                    .HasColumnType("nvarchar(450)");
 
                 b.Property<string>("Value")
                     .HasColumnType("nvarchar(max)");
@@ -324,25 +316,22 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Family_Finance.Models.ApplicationUser", b =>
             {
-                b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+                b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
+                    .WithMany("Members")
+                    .HasForeignKey("FamilyGroupID");
 
-                b.Property<int?>("FamilyGroupID")
-                    .HasColumnType("int");
-
-                b.HasIndex("FamilyGroupID");
-
-                b.HasDiscriminator().HasValue("ApplicationUser");
+                b.Navigation("FamilyGroup");
             });
 
             modelBuilder.Entity("Family_Finance.Models.FamilyInvitation", b =>
             {
-                b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
+                b.HasOne("Family_Finance.Models.ApplicationUser", "Inviter")
                     .WithMany()
-                    .HasForeignKey("FamilyGroupID")
-                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasForeignKey("InviterId")
+                    .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired();
 
-                b.Navigation("FamilyGroup");
+                b.Navigation("Inviter");
             });
 
             modelBuilder.Entity("Family_Finance.Models.Transaction", b =>
@@ -367,7 +356,7 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
             {
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                b.HasOne("Family_Finance.Models.ApplicationUser", null)
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -376,7 +365,7 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
             {
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                b.HasOne("Family_Finance.Models.ApplicationUser", null)
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -391,7 +380,7 @@ namespace Family_Finance.Data.Migrations
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired();
 
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                b.HasOne("Family_Finance.Models.ApplicationUser", null)
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -400,20 +389,11 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
             {
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                b.HasOne("Family_Finance.Models.ApplicationUser", null)
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired();
-            });
-
-            modelBuilder.Entity("Family_Finance.Models.ApplicationUser", b =>
-            {
-                b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
-                    .WithMany("Members")
-                    .HasForeignKey("FamilyGroupID");
-
-                b.Navigation("FamilyGroup");
             });
 
             modelBuilder.Entity("Family_Finance.Models.FamilyGroup", b =>

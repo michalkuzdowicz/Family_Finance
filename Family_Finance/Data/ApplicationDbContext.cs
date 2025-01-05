@@ -21,15 +21,6 @@ namespace Family_Finance.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FamilyInvitation>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.HasOne(e => e.Inviter)
-                    .WithMany()
-                    .HasForeignKey(e => e.InviterId)
-                    .OnDelete(DeleteBehavior.Restrict); // lub inne zachowanie w przypadku usunięcia
-            });
 
             modelBuilder.Entity<TargetTransaction>()
                .HasOne(tt => tt.FinancialTarget)
@@ -37,6 +28,6 @@ namespace Family_Finance.Data
                .HasForeignKey(tt => tt.FinancialTargetId)
                .OnDelete(DeleteBehavior.Cascade);
         }
-        
+
     }
 }

@@ -110,7 +110,7 @@ namespace Family_Finance.Data.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("FamilyGroups");
+                    b.ToTable("FamilyGroups", (string)null);
                 });
 
             modelBuilder.Entity("Family_Finance.Models.FamilyInvitation", b =>
@@ -120,13 +120,6 @@ namespace Family_Finance.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("FamilyGroupID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FamilyGroupId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("InvitationDate")
                         .HasColumnType("datetime2");
@@ -142,16 +135,11 @@ namespace Family_Finance.Data.Migrations
                     b.Property<bool>("IsAccepted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsRejected")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("FamilyGroupID");
 
                     b.HasIndex("InviterId");
 
-                    b.ToTable("FamilyInvitations");
+                    b.ToTable("FamilyInvitations", (string)null);
                 });
 
             modelBuilder.Entity("Family_Finance.Models.FinancialTarget", b =>
@@ -186,7 +174,7 @@ namespace Family_Finance.Data.Migrations
 
                     b.HasIndex("FamilyGroupID");
 
-                    b.ToTable("FinancialTarget");
+                    b.ToTable("FinancialTarget", (string)null);
                 });
 
             modelBuilder.Entity("Family_Finance.Models.TargetTransaction", b =>
@@ -228,7 +216,7 @@ namespace Family_Finance.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TargetTransactions");
+                    b.ToTable("TargetTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Family_Finance.Models.Transaction", b =>
@@ -265,7 +253,7 @@ namespace Family_Finance.Data.Migrations
 
                     b.Property<string>("UserID")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -273,9 +261,7 @@ namespace Family_Finance.Data.Migrations
 
                     b.HasIndex("FinancialTargetID");
 
-                    b.HasIndex("UserID");
-
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -422,19 +408,11 @@ namespace Family_Finance.Data.Migrations
 
             modelBuilder.Entity("Family_Finance.Models.FamilyInvitation", b =>
                 {
-                    b.HasOne("Family_Finance.Models.FamilyGroup", "FamilyGroup")
-                        .WithMany()
-                        .HasForeignKey("FamilyGroupID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Family_Finance.Models.ApplicationUser", "Inviter")
                         .WithMany()
                         .HasForeignKey("InviterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("FamilyGroup");
 
                     b.Navigation("Inviter");
                 });
@@ -487,17 +465,9 @@ namespace Family_Finance.Data.Migrations
                         .WithMany()
                         .HasForeignKey("FinancialTargetID");
 
-                    b.HasOne("Family_Finance.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("FamilyGroup");
 
                     b.Navigation("FinancialTarget");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
